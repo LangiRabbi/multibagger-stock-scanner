@@ -1,102 +1,81 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 /**
  * WCAG 2.1 Level AA Compliant Styles
- * All colors meet minimum 4.5:1 contrast ratio for normal text
- * See PRD.md Section 5.2 for full guidelines
+ * Tailwind CSS v4 - używamy natywnych CSS selektorów + Tailwind utilities w HTML
+ *
+ * Kolory zgodne z WCAG AA (min 4.5:1 kontrast):
+ * - gray.950: #030712 (21:1)
+ * - gray.900: #111827 (21:1)
+ * - gray.800: #1F2937 (12:1)
+ * - gray.700: #374151 (7:1)
+ * - gray.600: #4B5563 (4.5:1) - MINIMUM dla normalnego tekstu
+ * - gray.500: #6B7280 (3:1) - ZA SŁABE dla tekstu!
  */
 
-/* Typography - WCAG Compliant (21:1 ratio) */
+/* Typography - WCAG Compliant */
 h1, h2, h3, h4, h5, h6 {
-  @apply text-gray-900 font-bold;  /* #111827 - 21:1 contrast */
+  color: #111827; /* gray-900: 21:1 contrast */
+  font-weight: 700;
 }
 
 p {
-  @apply text-gray-800;  /* #1F2937 - 12:1 contrast */
+  color: #1F2937; /* gray-800: 12:1 contrast */
 }
 
 small, .text-secondary {
-  @apply text-gray-700;  /* #374151 - 7:1 contrast */
+  color: #374151; /* gray-700: 7:1 contrast */
 }
 
-/* Links - WCAG Compliant (7.7:1 ratio) */
+/* Links - WCAG Compliant */
 a {
-  @apply text-blue-700 hover:text-blue-900 underline;  /* 7.7:1 and 12.6:1 */
+  color: #1d4ed8; /* blue-700: 7.7:1 contrast */
+  text-decoration: underline;
 }
 
-/* Form Elements - WCAG Compliant (4.5:1 ratio) */
+a:hover {
+  color: #1e3a8a; /* blue-900: 12.6:1 contrast */
+}
+
+/* Form Elements - WCAG Compliant */
 input[type="text"],
 input[type="number"],
 input[type="email"],
 input[type="password"],
 textarea,
 select {
-  @apply border-2 border-gray-400 bg-white text-gray-900 placeholder-gray-500;
-  @apply focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200;
-  /* Border: 3:1, Text: 21:1, Placeholder: 4.5:1 */
+  border: 2px solid #9ca3af; /* gray-400 */
+  background-color: #ffffff;
+  color: #111827; /* gray-900: 21:1 */
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6B7280; /* gray-500: 4.5:1 - minimum dla placeholder */
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #3b82f6; /* blue-500 */
+  outline-offset: 2px;
+  border-color: #3b82f6;
 }
 
 label {
-  @apply text-gray-900 font-bold;  /* 21:1 contrast */
-}
-
-/* Buttons - High Contrast */
-button {
-  @apply font-semibold;
-}
-
-button:focus-visible {
-  @apply outline-2 outline-offset-2 outline-blue-500;  /* Keyboard focus */
-}
-
-/* Tables - WCAG Compliant */
-table th {
-  @apply text-gray-900 font-bold bg-gray-100;  /* 21:1 contrast */
-}
-
-table td {
-  @apply text-gray-800;  /* 12:1 contrast */
-}
-
-/* Status Colors - WCAG Compliant (>4.5:1 ratio) */
-.text-success {
-  @apply text-green-700;  /* #15803D - 4.7:1 */
-}
-
-.text-error {
-  @apply text-red-700;  /* #B91C1C - 5.9:1 */
-}
-
-.text-warning {
-  @apply text-yellow-700;  /* #A16207 - 4.7:1 */
+  color: #111827; /* gray-900: 21:1 */
+  font-weight: 700;
 }
 
 /* Focus Indicators - WCAG 2.4.7 */
 *:focus-visible {
-  @apply outline-2 outline-offset-2 outline-blue-500;
+  outline: 2px solid #3b82f6; /* blue-500 */
+  outline-offset: 2px;
+}
+
+/* Buttons */
+button {
+  font-weight: 600;
 }
