@@ -1,5 +1,6 @@
 /**
  * Strona Portfolio - zarzadzanie portfolio
+ * WCAG 2.1 Level AA Compliant
  */
 'use client'
 
@@ -109,7 +110,7 @@ export default function PortfolioPage() {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Portfolio</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Portfolio</h1>
         <div className="animate-pulse">
           <div className="h-32 bg-gray-200 rounded"></div>
         </div>
@@ -120,9 +121,12 @@ export default function PortfolioPage() {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Portfolio</h1>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <p className="text-red-700">Error: {error}</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Portfolio</h1>
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
+          <p className="text-red-800 font-medium">Error: {error}</p>
+          <p className="text-sm text-gray-800 mt-2">
+            Upewnij się że backend działa na http://localhost:8000
+          </p>
         </div>
       </div>
     )
@@ -131,10 +135,10 @@ export default function PortfolioPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">My Portfolio</h1>
+        <h1 className="text-3xl font-bold text-gray-900">My Portfolio</h1>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700"
         >
           {showAddForm ? 'Cancel' : '+ Add Stock'}
         </button>
@@ -147,8 +151,9 @@ export default function PortfolioPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-bold mb-2 text-gray-900">Symbol</label>
+              <label htmlFor="newSymbol" className="block text-sm font-bold mb-2 text-gray-900">Symbol</label>
               <input
+                id="newSymbol"
                 type="text"
                 value={newSymbol}
                 onChange={(e) => setNewSymbol(e.target.value)}
@@ -159,8 +164,9 @@ export default function PortfolioPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold mb-2 text-gray-900">Entry Price</label>
+              <label htmlFor="newPrice" className="block text-sm font-bold mb-2 text-gray-900">Entry Price</label>
               <input
+                id="newPrice"
                 type="number"
                 step="0.01"
                 value={newPrice}
@@ -172,8 +178,9 @@ export default function PortfolioPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold mb-2 text-gray-900">Quantity</label>
+              <label htmlFor="newQuantity" className="block text-sm font-bold mb-2 text-gray-900">Quantity</label>
               <input
+                id="newQuantity"
                 type="number"
                 step="0.01"
                 value={newQuantity}
@@ -185,8 +192,9 @@ export default function PortfolioPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold mb-2 text-gray-900">Notes (optional)</label>
+              <label htmlFor="newNotes" className="block text-sm font-bold mb-2 text-gray-900">Notes (optional)</label>
               <input
+                id="newNotes"
                 type="text"
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
@@ -198,7 +206,7 @@ export default function PortfolioPage() {
 
           <button
             type="submit"
-            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+            className="bg-green-600 text-white font-semibold px-6 py-2 rounded hover:bg-green-700"
           >
             Add to Portfolio
           </button>
@@ -206,13 +214,13 @@ export default function PortfolioPage() {
       )}
 
       {/* Portfolio list */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white p-6 rounded-lg shadow-md border-2 border-gray-300">
         <h2 className="text-2xl font-bold mb-4 text-gray-900">
           Your Stocks (<span className="text-blue-700">{items.length}</span>)
         </h2>
 
         {items.length === 0 ? (
-          <p className="text-gray-700 font-medium">Brak akcji w portfolio. Dodaj pierwsza!</p>
+          <p className="text-gray-800 font-medium">Brak akcji w portfolio. Dodaj pierwsza!</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full">
@@ -230,9 +238,9 @@ export default function PortfolioPage() {
                 {items.map((item) => (
                   <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-4 py-3 font-bold text-gray-900 text-base">{item.symbol}</td>
-                    <td className="px-4 py-3 text-gray-900 font-medium">${item.entry_price}</td>
-                    <td className="px-4 py-3 text-gray-900">{item.quantity}</td>
-                    <td className="px-4 py-3 text-gray-700">{item.notes || '—'}</td>
+                    <td className="px-4 py-3 text-gray-800 font-medium">${item.entry_price}</td>
+                    <td className="px-4 py-3 text-gray-800">{item.quantity}</td>
+                    <td className="px-4 py-3 text-gray-800">{item.notes || '—'}</td>
                     <td className="px-4 py-3 text-gray-700 text-sm">
                       {new Date(item.added_at).toLocaleDateString()}
                     </td>

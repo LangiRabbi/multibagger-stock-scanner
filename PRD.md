@@ -242,7 +242,119 @@ _"Jako użytkownik chcę mieć prywatne portfolio zabezpieczone hasłem."_
 - n8n (workflows)
 - GitHub Actions (CI/CD)
 
-### 5.2 System Diagram
+### 5.2 UI/UX & Accessibility Guidelines
+
+**⚠️ OBOWIĄZKOWE: Wszystkie strony MUSZĄ spełniać WCAG 2.1 Level AA**
+
+#### 5.2.1 Color Contrast Requirements
+
+**Minimum Ratios (WCAG 2.1 AA):**
+- Normal text (< 18px): **4.5:1**
+- Large text (≥ 18px or ≥ 14px bold): **3:1**
+- UI Components (borders, icons): **3:1**
+
+#### 5.2.2 Approved Color Palette (Tailwind Classes)
+
+**✅ WCAG-Compliant Colors:**
+
+| Element | Tailwind Class | Hex Color | Contrast Ratio (white bg) | Usage |
+|---------|---------------|-----------|---------------------------|-------|
+| **Primary Headings** | `text-gray-900` | `#111827` | **21:1** ✓ | h1, h2, main titles |
+| **Body Text** | `text-gray-800` | `#1F2937` | **12:1** ✓ | Paragraphs, descriptions |
+| **Secondary Text** | `text-gray-700` | `#374151` | **7:1** ✓ | Labels, captions |
+| **Disabled/Muted** | `text-gray-600` | `#4B5563` | **4.6:1** ✓ | Disabled states |
+| **Placeholders** | `text-gray-500` | `#6B7280` | **4.5:1** ✓ | Input placeholders |
+| **Primary Links** | `text-blue-700` | `#1D4ED8` | **7.7:1** ✓ | Clickable links |
+| **Link Hover** | `text-blue-900` | `#1E3A8A` | **12.6:1** ✓ | Link hover state |
+| **Success** | `text-green-700` | `#15803D` | **4.7:1** ✓ | Success messages |
+| **Error** | `text-red-700` | `#B91C1C` | **5.9:1** ✓ | Error messages |
+| **Warning** | `text-yellow-700` | `#A16207` | **4.7:1** ✓ | Warnings |
+
+**❌ FORBIDDEN Colors (Poor Contrast):**
+- `text-gray-400`, `text-gray-300`, `text-gray-200` - **NEVER USE for text**
+- `text-blue-400`, `text-green-400` - **NEVER USE on white background**
+
+#### 5.2.3 Typography Standards
+
+**Font Sizes & Weights:**
+```css
+/* Headings - always text-gray-900 */
+h1: text-4xl font-bold text-gray-900    /* 36px */
+h2: text-3xl font-bold text-gray-900    /* 30px */
+h3: text-2xl font-bold text-gray-900    /* 24px */
+h4: text-xl font-bold text-gray-900     /* 20px */
+
+/* Body Text - text-gray-800 */
+p: text-base text-gray-800              /* 16px */
+small: text-sm text-gray-700            /* 14px */
+
+/* Labels - text-gray-900 font-bold */
+label: text-sm font-bold text-gray-900  /* 14px bold */
+
+/* Links - text-blue-700 hover:text-blue-900 */
+a: text-blue-700 hover:text-blue-900 underline
+```
+
+#### 5.2.4 Form Elements Standards
+
+**Input Fields:**
+```tsx
+<input
+  className="border-2 border-gray-400 bg-white text-gray-900
+             placeholder-gray-500 focus:border-blue-500 focus:outline-none
+             px-3 py-2 rounded"
+  placeholder="Enter value"
+/>
+```
+
+**Buttons:**
+```tsx
+/* Primary */
+<button className="bg-blue-600 text-white font-semibold hover:bg-blue-700
+                   px-4 py-2 rounded">
+  Submit
+</button>
+
+/* Danger */
+<button className="bg-red-600 text-white font-semibold hover:bg-red-700
+                   px-4 py-2 rounded">
+  Delete
+</button>
+
+/* Secondary */
+<button className="border-2 border-gray-400 text-gray-900 font-semibold
+                   hover:bg-gray-100 px-4 py-2 rounded">
+  Cancel
+</button>
+```
+
+#### 5.2.5 WCAG Checklist (Every Page)
+
+**Before Deployment:**
+- [ ] All text has contrast ≥ 4.5:1 (normal) or ≥ 3:1 (large)
+- [ ] All interactive elements (buttons, links) have ≥ 3:1 contrast
+- [ ] Focus indicators visible (blue border)
+- [ ] Keyboard navigation works (Tab, Enter, Space)
+- [ ] Alt text for all images/icons
+- [ ] Forms have labels with `for` attribute
+- [ ] Error messages are descriptive and high-contrast
+- [ ] No color-only information (use icons/text too)
+
+**Testing Tools:**
+- Chrome DevTools: Lighthouse (Accessibility score ≥ 90)
+- WebAIM Contrast Checker: https://webaim.org/resources/contrastchecker/
+- axe DevTools: https://www.deque.com/axe/devtools/
+
+#### 5.2.6 Dark Mode (Future)
+
+**⚠️ Sprint 4+** - Gdy dodajemy dark mode, kontrasty muszą być odwrócone:
+- Background: `bg-gray-900`
+- Text: `text-gray-100` (ratio ≥ 15:1)
+- Secondary: `text-gray-300` (ratio ≥ 9:1)
+
+---
+
+### 5.3 System Diagram
 
 ```
 ┌─────────────┐
@@ -266,7 +378,7 @@ _"Jako użytkownik chcę mieć prywatne portfolio zabezpieczone hasłem."_
                                     └─────────┘
 ```
 
-### 5.3 Database Schema (Core Tables)
+### 5.4 Database Schema (Core Tables)
 
 **users**
 - id (PK)

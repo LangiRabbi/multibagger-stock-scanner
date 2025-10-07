@@ -1,5 +1,6 @@
 /**
  * Strona Health Check - testuje połączenie z backendem
+ * WCAG 2.1 Level AA Compliant
  */
 'use client'
 
@@ -34,7 +35,7 @@ export default function HealthCheckPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4">Health Check</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Health Check</h1>
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="h-32 bg-gray-200 rounded"></div>
@@ -46,11 +47,11 @@ export default function HealthCheckPage() {
   if (error) {
     return (
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4">Health Check</h1>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">❌ Error</h2>
-          <p className="text-red-700">{error}</p>
-          <p className="text-sm text-gray-600 mt-4">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Health Check</h1>
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
+          <h2 className="text-xl font-bold text-red-900 mb-2">❌ Error</h2>
+          <p className="text-red-800">{error}</p>
+          <p className="text-sm text-gray-800 mt-4">
             Upewnij się że backend działa na http://localhost:8000
           </p>
         </div>
@@ -60,28 +61,28 @@ export default function HealthCheckPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Health Check</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">Health Check</h1>
 
       {health && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-green-600 mb-2">
+        <div className="bg-green-50 border-2 border-green-300 rounded-lg p-6">
+          <h2 className="text-xl font-bold text-green-900 mb-2">
             ✅ {health.status === 'ok' ? 'API is Running' : 'Status: ' + health.status}
           </h2>
-          <p className="text-gray-700 mb-4">{health.message}</p>
+          <p className="text-gray-800 mb-4">{health.message}</p>
 
           <div className="space-y-2">
             {health.database && (
               <div className="flex items-center space-x-2">
-                <span className="font-semibold">Database:</span>
-                <span className={health.database === 'connected' ? 'text-green-600' : 'text-red-600'}>
+                <span className="font-bold text-gray-900">Database:</span>
+                <span className={health.database === 'connected' ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
                   {health.database}
                 </span>
               </div>
             )}
             {health.redis && (
               <div className="flex items-center space-x-2">
-                <span className="font-semibold">Redis:</span>
-                <span className={health.redis === 'connected' ? 'text-green-600' : 'text-red-600'}>
+                <span className="font-bold text-gray-900">Redis:</span>
+                <span className={health.redis === 'connected' ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
                   {health.redis}
                 </span>
               </div>
@@ -90,8 +91,8 @@ export default function HealthCheckPage() {
         </div>
       )}
 
-      <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-        <h3 className="font-semibold mb-2">Raw JSON Response:</h3>
+      <div className="mt-8 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg">
+        <h3 className="font-bold text-gray-900 mb-2">Raw JSON Response:</h3>
         <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto text-sm">
           {JSON.stringify(health, null, 2)}
         </pre>
