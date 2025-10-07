@@ -73,7 +73,7 @@ export default function ScanPage() {
       {/* Formularz skanowania */}
       <form onSubmit={handleScan} className="bg-white p-6 rounded-lg shadow-md mb-6">
         <div className="mb-4">
-          <label className="block text-sm font-semibold mb-2">
+          <label className="block text-sm font-bold mb-2 text-gray-900">
             Stock Symbols (oddziel przecinkiem)
           </label>
           <input
@@ -91,7 +91,7 @@ export default function ScanPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-semibold mb-2">
+            <label className="block text-sm font-bold mb-2 text-gray-900">
               Min Volume
             </label>
             <input
@@ -104,7 +104,7 @@ export default function ScanPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-2">
+            <label className="block text-sm font-bold mb-2 text-gray-900">
               Min Price Change % (7 dni) - opcjonalne
             </label>
             <input
@@ -140,8 +140,8 @@ export default function ScanPage() {
       {/* Wyniki */}
       {results && (
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">
-            Scan Results: {results.matches} / {results.total_scanned} akcji spelnia kryteria
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">
+            Scan Results: <span className="text-green-700">{results.matches}</span> / {results.total_scanned} akcji spelnia kryteria
           </h2>
 
           {results.results.length === 0 ? (
@@ -149,36 +149,36 @@ export default function ScanPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-100 border-b-2 border-gray-300">
                   <tr>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Symbol</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Price</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Volume</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Change 7d</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Change 30d</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Status</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Symbol</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Price</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Volume</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Change 7d</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Change 30d</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {results.results.map((result, idx) => (
                     <tr
                       key={idx}
-                      className={result.meets_criteria ? 'bg-green-50' : 'bg-gray-50'}
+                      className={result.meets_criteria ? 'bg-green-100 border-b border-green-200' : 'bg-white border-b border-gray-200'}
                     >
-                      <td className="px-4 py-2 font-semibold">{result.symbol}</td>
-                      <td className="px-4 py-2">${result.price}</td>
-                      <td className="px-4 py-2">{result.volume.toLocaleString()}</td>
-                      <td className={`px-4 py-2 ${result.price_change_7d && result.price_change_7d > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <td className="px-4 py-3 font-bold text-gray-900 text-base">{result.symbol}</td>
+                      <td className="px-4 py-3 text-gray-900 font-medium">${result.price}</td>
+                      <td className="px-4 py-3 text-gray-900">{result.volume.toLocaleString()}</td>
+                      <td className={`px-4 py-3 font-bold ${result.price_change_7d && result.price_change_7d > 0 ? 'text-green-700' : 'text-red-700'}`}>
                         {result.price_change_7d ? `${result.price_change_7d > 0 ? '+' : ''}${result.price_change_7d}%` : 'N/A'}
                       </td>
-                      <td className={`px-4 py-2 ${result.price_change_30d && result.price_change_30d > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <td className={`px-4 py-3 font-bold ${result.price_change_30d && result.price_change_30d > 0 ? 'text-green-700' : 'text-red-700'}`}>
                         {result.price_change_30d ? `${result.price_change_30d > 0 ? '+' : ''}${result.price_change_30d}%` : 'N/A'}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         {result.meets_criteria ? (
-                          <span className="text-green-600 font-semibold">✓ Match</span>
+                          <span className="text-green-700 font-bold text-base">✓ Match</span>
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-gray-500 font-medium">—</span>
                         )}
                       </td>
                     </tr>

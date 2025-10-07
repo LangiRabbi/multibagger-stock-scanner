@@ -31,12 +31,17 @@ export default function PortfolioPage() {
   const fetchPortfolio = async () => {
     try {
       const response = await fetch('http://localhost:8000/api/portfolio')
-      if (!response.ok) throw new Error('Failed to fetch portfolio')
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to fetch portfolio`)
+      }
       const data = await response.json()
       setItems(data)
+      setError(null) // Clear any previous errors
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
+      } else {
+        setError('Unknown error occurred')
       }
     } finally {
       setLoading(false)
@@ -142,7 +147,7 @@ export default function PortfolioPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-semibold mb-2">Symbol</label>
+              <label className="block text-sm font-bold mb-2 text-gray-900">Symbol</label>
               <input
                 type="text"
                 value={newSymbol}
@@ -154,7 +159,7 @@ export default function PortfolioPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Entry Price</label>
+              <label className="block text-sm font-bold mb-2 text-gray-900">Entry Price</label>
               <input
                 type="number"
                 step="0.01"
@@ -167,7 +172,7 @@ export default function PortfolioPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Quantity</label>
+              <label className="block text-sm font-bold mb-2 text-gray-900">Quantity</label>
               <input
                 type="number"
                 step="0.01"
@@ -180,7 +185,7 @@ export default function PortfolioPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Notes (optional)</label>
+              <label className="block text-sm font-bold mb-2 text-gray-900">Notes (optional)</label>
               <input
                 type="text"
                 value={newNotes}
@@ -202,39 +207,39 @@ export default function PortfolioPage() {
 
       {/* Portfolio list */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold mb-4">
-          Your Stocks ({items.length})
+        <h2 className="text-2xl font-bold mb-4 text-gray-900">
+          Your Stocks (<span className="text-blue-700">{items.length}</span>)
         </h2>
 
         {items.length === 0 ? (
-          <p className="text-gray-500">Brak akcji w portfolio. Dodaj pierwsza!</p>
+          <p className="text-gray-700 font-medium">Brak akcji w portfolio. Dodaj pierwsza!</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-100 border-b-2 border-gray-300">
                 <tr>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Symbol</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Entry Price</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Quantity</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Notes</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Added</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Actions</th>
+                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Symbol</th>
+                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Entry Price</th>
+                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Quantity</th>
+                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Notes</th>
+                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Added</th>
+                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-900">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item) => (
-                  <tr key={item.id} className="border-t">
-                    <td className="px-4 py-2 font-semibold">{item.symbol}</td>
-                    <td className="px-4 py-2">${item.entry_price}</td>
-                    <td className="px-4 py-2">{item.quantity}</td>
-                    <td className="px-4 py-2 text-gray-600">{item.notes || '—'}</td>
-                    <td className="px-4 py-2 text-gray-500 text-sm">
+                  <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="px-4 py-3 font-bold text-gray-900 text-base">{item.symbol}</td>
+                    <td className="px-4 py-3 text-gray-900 font-medium">${item.entry_price}</td>
+                    <td className="px-4 py-3 text-gray-900">{item.quantity}</td>
+                    <td className="px-4 py-3 text-gray-700">{item.notes || '—'}</td>
+                    <td className="px-4 py-3 text-gray-700 text-sm">
                       {new Date(item.added_at).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-3">
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="text-red-600 hover:text-red-800 font-semibold"
+                        className="text-red-700 hover:text-red-900 font-bold"
                       >
                         Delete
                       </button>
