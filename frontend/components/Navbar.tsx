@@ -32,13 +32,13 @@ export default function Navbar() {
               href="/scan"
               className="hover:text-blue-400 transition-colors"
             >
-              Scan (Coming Soon)
+              Scan
             </Link>
             <Link
               href="/portfolio"
               className="hover:text-blue-400 transition-colors"
             >
-              Portfolio (Coming Soon)
+              Portfolio
             </Link>
           </div>
         </div>

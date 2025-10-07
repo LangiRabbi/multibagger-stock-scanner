@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
 from app.config import settings
+from app.api import scan, portfolio  # Import API routers
 
 
 # Tworzenie tabel w bazie danych (przy pierwszym uruchomieniu)
@@ -16,7 +17,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Multibagger Stock Scanner API",
     description="API do skanowania akcji i zarządzania portfolio",
-    version="0.1.0"
+    version="0.2.0"  # Sprint 2
 )
 
 
@@ -28,6 +29,11 @@ app.add_middleware(
     allow_methods=["*"],  # Wszystkie metody (GET, POST, PUT, DELETE)
     allow_headers=["*"],  # Wszystkie headers
 )
+
+
+# Include API routers (Sprint 2)
+app.include_router(scan.router)
+app.include_router(portfolio.router)
 
 
 @app.get("/")
