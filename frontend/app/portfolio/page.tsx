@@ -142,8 +142,8 @@ export default function PortfolioPage() {
 
       {/* Add form */}
       {showAddForm && (
-        <form onSubmit={handleAdd} className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-xl font-semibold mb-4">Add New Stock</h2>
+        <form onSubmit={handleAdd} className="bg-white p-6 rounded-lg shadow-md mb-6 border-2 border-gray-300">
+          <h2 className="text-xl font-bold mb-4 text-gray-900">Add New Stock</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
@@ -152,7 +152,7 @@ export default function PortfolioPage() {
                 type="text"
                 value={newSymbol}
                 onChange={(e) => setNewSymbol(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border-2 border-gray-400 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="AAPL"
                 required
               />
@@ -165,7 +165,7 @@ export default function PortfolioPage() {
                 step="0.01"
                 value={newPrice}
                 onChange={(e) => setNewPrice(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border-2 border-gray-400 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="150.00"
                 required
               />
@@ -178,7 +178,7 @@ export default function PortfolioPage() {
                 step="0.01"
                 value={newQuantity}
                 onChange={(e) => setNewQuantity(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border-2 border-gray-400 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="10"
                 required
               />
@@ -190,7 +190,7 @@ export default function PortfolioPage() {
                 type="text"
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border-2 border-gray-400 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="Long term hold"
               />
             </div>

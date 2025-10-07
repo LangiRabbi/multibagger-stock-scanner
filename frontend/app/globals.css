@@ -24,3 +24,33 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Globalne style dla lepszego kontrastu */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  @apply border-2 border-gray-400 bg-white text-gray-900 placeholder-gray-500;
+  @apply focus:border-blue-500 focus:outline-none;
+}
+
+/* Przyciski z lepszym kontrastem */
+button {
+  @apply font-semibold;
+}
+
+/* Headingi z lepszym kontrastem */
+h1, h2, h3, h4, h5, h6 {
+  @apply text-gray-900 font-bold;
+}
+
+/* Tabele z lepszym kontrastem */
+table th {
+  @apply text-gray-900 font-bold bg-gray-100;
+}
+
+table td {
+  @apply text-gray-900;
+}

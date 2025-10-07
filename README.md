@@ -102,7 +102,20 @@ docker exec multibagger-db psql -U postgres -d multibagger -c "\dt"
 
 Powinny być 3 tabele: `users`, `portfolio_items`, `scan_results`.
 
-### 4. Run Backend (FastAPI)
+### 4. Create Mock User (Sprint 2)
+
+**WAŻNE:** Portfolio API wymaga użytkownika w bazie danych!
+
+```bash
+cd backend
+python seed_mock_user.py
+```
+
+Powinno wyświetlić: `✅ SUKCES! Mock użytkownik utworzony`
+
+Ten krok jest potrzebny do testowania Portfolio CRUD przed implementacją autentykacji (Sprint 3).
+
+### 5. Run Backend (FastAPI)
 
 W tym samym terminalu (lub nowym):
 
@@ -118,7 +131,7 @@ Backend będzie dostępny na:
 - Health check: http://localhost:8000/health
 - Docs (Swagger UI): http://localhost:8000/docs
 
-### 5. Run Frontend (Next.js)
+### 6. Run Frontend (Next.js)
 
 Otwórz kolejny terminal:
 
