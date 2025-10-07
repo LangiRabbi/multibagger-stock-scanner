@@ -106,36 +106,35 @@ class StockScanner:
                 # Metrics dict - zawiera 117 metryk!
                 metrics = fundamentals['metric']
 
-                # === POBIERZ METRYKI BEZPOŚREDNIO ===
+                # === POBIERZ METRYKI Z PRAWIDŁOWYMI KLUCZAMI ===
 
-                # Market Cap
+                # Market Cap (w milionach!)
                 market_cap = metrics.get('marketCapitalization', 0)
+                # Konwertuj z milionów na normalne wartości
+                market_cap = int(market_cap * 1_000_000) if market_cap else 0
 
-                # ROE (Return on Equity) - Finnhub zwraca już w % (nie decimal!)
+                # ROE (Return on Equity) - już w %
                 roe = metrics.get('roeTTM', 0)
 
-                # ROIC (Return on Invested Capital) - podobne do ROCE
-                roce = metrics.get('roicTTM', 0)
+                # ROCE (Return on Capital Employed)
+                # Finnhub nie ma roicTTM, ale ma 'roic' w series.annual
+                roce = 0
+                if 'series' in fundamentals and 'annual' in fundamentals['series']:
+                    roic_series = fundamentals['series']['annual'].get('roic', [])
+                    if roic_series and len(roic_series) > 0:
+                        # roic to lista dict: [{'period': '2023-09-30', 'v': 0.4532}]
+                        # wartość to decimal, konwertujemy na %
+                        roce = roic_series[0].get('v', 0) * 100 if roic_series[0].get('v') else 0
 
-                # Debt/Equity
-                debt_equity = metrics.get('totalDebtToEquity', 999)
+                # Debt/Equity - PRAWIDŁOWY KLUCZ!
+                # totalDebt/totalEquityAnnual (z / w nazwie klucza!)
+                debt_equity = metrics.get('totalDebt/totalEquityAnnual', 999)
 
                 # P/E Ratio TTM
                 forward_pe = metrics.get('peTTM', 999)
 
-                # === REVENUE GROWTH z historical data ===
-                # series zawiera historical annual/quarterly data
-                revenue_growth = 0
-                if 'series' in fundamentals and 'annual' in fundamentals['series']:
-                    revenue_series = fundamentals['series']['annual'].get('revenue', [])
-
-                    # Oblicz YoY growth z ostatnich 2 lat
-                    if len(revenue_series) >= 2:
-                        latest_revenue = revenue_series[0].get('v', 0)
-                        prev_revenue = revenue_series[1].get('v', 1)
-
-                        if prev_revenue > 0:
-                            revenue_growth = ((latest_revenue - prev_revenue) / prev_revenue) * 100
+                # Revenue Growth TTM YoY - PRAWIDŁOWY KLUCZ!
+                revenue_growth = metrics.get('revenueGrowthTTMYoy', 0)
 
                 # === SPRAWDZ WSZYSTKIE KRYTERIA ===
                 meets_criteria = True
