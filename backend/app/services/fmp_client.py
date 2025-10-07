@@ -5,10 +5,10 @@ Pobiera dane finansowe z oficjalnych SEC filings
 Free tier: 250 requests/day
 Dokumentacja: https://site.financialmodelingprep.com/developer/docs
 """
-import os
 import requests
 from typing import Optional, Dict
 import logging
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class FMPClient:
 
         Wymaga zmiennej środowiskowej FMP_API_KEY w .env
         """
-        self.api_key = os.getenv("FMP_API_KEY")
+        self.api_key = settings.FMP_API_KEY
         if not self.api_key:
             raise ValueError(
                 "FMP_API_KEY nie znaleziony w .env! "

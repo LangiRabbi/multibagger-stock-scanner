@@ -23,7 +23,11 @@ class Settings(BaseSettings):
     PORT: int = 8000
     MIN_VOLUME: int = 1000000
 
-    # API Keys (opcjonalne)
+    # API Keys
+    # Financial Modeling Prep (FMP) - WYMAGANE dla stock scanner fundamentals
+    FMP_API_KEY: str = ""
+
+    # Inne API Keys (opcjonalne)
     ALPHA_VANTAGE_API_KEY: str = ""
     FINNHUB_API_KEY: str = ""
 
