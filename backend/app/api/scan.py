@@ -40,11 +40,19 @@ async def scan_stocks(request: ScanRequest):
     }
     ```
     """
-    # Wywolaj StockScanner service
+    # Wywolaj StockScanner service z WSZYSTKIMI parametrami
     results = StockScanner.scan_stocks(
         symbols=request.symbols,
-        min_volume=request.min_volume or 1000000,
-        min_price_change_percent=request.min_price_change_percent
+        min_volume=request.min_volume or 1_000_000,
+        min_price_change_percent=request.min_price_change_percent,
+        # === FUNDAMENTALS ===
+        min_market_cap=request.min_market_cap,
+        max_market_cap=request.max_market_cap,
+        min_roe=request.min_roe,
+        min_roce=request.min_roce,
+        max_debt_equity=request.max_debt_equity,
+        min_revenue_growth=request.min_revenue_growth,
+        max_forward_pe=request.max_forward_pe
     )
 
     # Policz matches (akcje spelniajace kryteria)

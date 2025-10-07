@@ -14,8 +14,9 @@ pydantic-settings==2.5.2
 # Redis (cache)
 redis==5.0.1
 
-# Data fetching (yfinance)
+# Data fetching (yfinance for price/volume + FMP for fundamentals)
 yfinance==0.2.32
+requests==2.32.3
 
 # Background jobs (Celery) - zainstalujemy w Sprint 2
 # celery==5.3.4
