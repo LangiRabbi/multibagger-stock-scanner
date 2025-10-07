@@ -1,5 +1,27 @@
+# FastAPI Framework
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
+
+# Database (PostgreSQL + SQLAlchemy)
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.10  # Nowsza wersja z lepszym wsparciem Windows
+
+# Configuration & Environment
 python-dotenv==1.0.1
 pydantic==2.9.2
+pydantic-settings==2.5.2
 
+# Redis (cache)
+redis==5.0.1
+
+# Data fetching (yfinance)
+yfinance==0.2.32
+
+# Background jobs (Celery) - zainstalujemy w Sprint 2
+# celery==5.3.4
+# flower==2.0.1
+
+# Testing (pytest) - dodamy w QA fazie
+# pytest==7.4.3
+# pytest-asyncio==0.21.1
+# httpx==0.25.2
