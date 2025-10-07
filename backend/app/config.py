@@ -24,12 +24,12 @@ class Settings(BaseSettings):
     MIN_VOLUME: int = 1000000
 
     # API Keys
-    # Financial Modeling Prep (FMP) - WYMAGANE dla stock scanner fundamentals
-    FMP_API_KEY: str = ""
+    # Finnhub.io - WYMAGANE dla stock scanner fundamentals
+    # FREE tier: 60 calls/min, 117 metrics w jednym calu
+    FINNHUB_API_KEY: str = ""
 
     # Inne API Keys (opcjonalne)
     ALPHA_VANTAGE_API_KEY: str = ""
-    FINNHUB_API_KEY: str = ""
 
     @property
     def database_url(self) -> str:

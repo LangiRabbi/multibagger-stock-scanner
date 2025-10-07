@@ -1,5 +1,5 @@
 """
-Stock Scanner Service - HYBRID: yfinance (price/volume) + FMP (fundamentals)
+Stock Scanner Service - HYBRID: yfinance (price changes) + Finnhub (fundamentals)
 """
 import yfinance as yf
 from typing import List, Optional
@@ -7,7 +7,7 @@ import logging
 from app.schemas.scan import StockResult
 from app.database import SessionLocal
 from app.models.scan import ScanResult as ScanResultModel
-from app.services.fmp_client import FMPClient
+from app.services.finnhub_client import FinnhubClient
 
 # Logger dla error handling
 logger = logging.getLogger(__name__)
@@ -18,8 +18,8 @@ class StockScanner:
     Serwis do skanowania akcji wedlug kryteriow MULTIBAGGER.
 
     Hybrid approach:
-    - yfinance: Volume, Price, Price Changes (działa stabilnie)
-    - FMP API: Fundamentals (ROE, ROCE, Debt/Equity, etc.) - stabilne dane z SEC
+    - yfinance: Price Changes 7d/30d (historical data)
+    - Finnhub API: Fundamentals + Real-time Price/Volume (117 metrics w 1 calu!)
     """
 
     @staticmethod
@@ -56,101 +56,86 @@ class StockScanner:
         """
         results = []
 
+        # Inicjalizuj Finnhub client raz dla wszystkich symboli
+        finnhub = FinnhubClient()
+
         for symbol in symbols:
             try:
-                # Pobierz dane z yfinance
+                # === PRICE CHANGES Z YFINANCE (historical data) ===
                 ticker = yf.Ticker(symbol)
-
-                # Historia ostatnich 30 dni (aby obliczyc price_change)
                 hist = ticker.history(period="1mo")
 
                 if hist.empty:
-                    # Brak danych dla tego symbolu - pomijamy
                     logger.warning(f"Brak danych historycznych dla {symbol}")
                     continue
-
-                # === DANE CENOWE ===
-                # Aktualna cena (ostatni Close)
-                current_price = float(hist["Close"].iloc[-1])
-
-                # Wolumen z ostatniego dnia
-                current_volume = int(hist["Volume"].iloc[-1])
 
                 # Oblicz zmiane ceny 7 dni
                 price_change_7d = None
                 if len(hist) >= 7:
+                    current_price_hist = float(hist["Close"].iloc[-1])
                     price_7d_ago = float(hist["Close"].iloc[-7])
-                    price_change_7d = ((current_price - price_7d_ago) / price_7d_ago) * 100
+                    price_change_7d = ((current_price_hist - price_7d_ago) / price_7d_ago) * 100
 
                 # Oblicz zmiane ceny 30 dni
                 price_change_30d = None
                 if len(hist) >= 30:
+                    current_price_hist = float(hist["Close"].iloc[-1])
                     price_30d_ago = float(hist["Close"].iloc[-30])
-                    price_change_30d = ((current_price - price_30d_ago) / price_30d_ago) * 100
+                    price_change_30d = ((current_price_hist - price_30d_ago) / price_30d_ago) * 100
                 elif len(hist) > 1:
-                    # Jesli mniej niz 30 dni, uzyj pierwszego dostepnego
+                    current_price_hist = float(hist["Close"].iloc[-1])
                     price_first = float(hist["Close"].iloc[0])
-                    price_change_30d = ((current_price - price_first) / price_first) * 100
+                    price_change_30d = ((current_price_hist - price_first) / price_first) * 100
 
-                # === FUNDAMENTALS Z FMP API ===
-                try:
-                    fmp = FMPClient()
+                # === REAL-TIME PRICE/VOLUME Z FINNHUB ===
+                quote = finnhub.get_quote(symbol)
+                if not quote:
+                    logger.warning(f"Brak danych quote Finnhub dla {symbol}")
+                    continue
 
-                    # Pobierz 3 endpointy FMP
-                    income = fmp.get_income_statement(symbol)
-                    balance = fmp.get_balance_sheet(symbol)
-                    metrics = fmp.get_key_metrics(symbol)
+                current_price = quote.get('c', 0)  # current price
+                current_volume = int(quote.get('v', 0))  # volume
 
-                    if not income or not balance or not metrics:
-                        logger.warning(f"Brak danych FMP dla {symbol} - pomijamy")
-                        continue
+                # === FUNDAMENTALS Z FINNHUB (1 API call!) ===
+                fundamentals = finnhub.get_fundamentals(symbol)
 
-                    # === DANE Z KEY METRICS TTM ===
+                if not fundamentals or 'metric' not in fundamentals:
+                    logger.warning(f"Brak danych fundamentals Finnhub dla {symbol} - pomijamy")
+                    continue
 
-                    # Market Cap
-                    market_cap = metrics.get('marketCapTTM', 0)
+                # Metrics dict - zawiera 117 metryk!
+                metrics = fundamentals['metric']
 
-                    # ROE (Return on Equity) - FMP zwraca jako decimal (0.15 = 15%)
-                    roe_raw = metrics.get('roeTTM', 0)
-                    roe = roe_raw * 100 if roe_raw else 0
+                # === POBIERZ METRYKI BEZPOŚREDNIO ===
 
-                    # Revenue Growth YoY - FMP zwraca jako decimal
-                    revenue_growth_raw = metrics.get('revenueGrowthTTM', 0)
-                    revenue_growth = revenue_growth_raw * 100 if revenue_growth_raw else 0
+                # Market Cap
+                market_cap = metrics.get('marketCapitalization', 0)
 
-                    # P/E Ratio TTM
-                    forward_pe = metrics.get('peRatioTTM', 999)
+                # ROE (Return on Equity) - Finnhub zwraca już w % (nie decimal!)
+                roe = metrics.get('roeTTM', 0)
 
-                    # === DANE Z BALANCE SHEET ===
+                # ROIC (Return on Invested Capital) - podobne do ROCE
+                roce = metrics.get('roicTTM', 0)
 
-                    # Debt/Equity calculation
-                    total_debt = balance.get('totalDebt', 0)
-                    equity = balance.get('totalStockholdersEquity', 1)
-                    debt_equity = total_debt / equity if equity > 0 else 999
+                # Debt/Equity
+                debt_equity = metrics.get('totalDebtToEquity', 999)
 
-                    # === OBLICZ ROCE (Return on Capital Employed) ===
-                    # ROCE = Operating Income / (Total Assets - Current Liabilities) * 100
+                # P/E Ratio TTM
+                forward_pe = metrics.get('peTTM', 999)
 
-                    # Operating Income z Income Statement (alternatywa dla EBIT)
-                    operating_income = income.get('operatingIncome', 0)
+                # === REVENUE GROWTH z historical data ===
+                # series zawiera historical annual/quarterly data
+                revenue_growth = 0
+                if 'series' in fundamentals and 'annual' in fundamentals['series']:
+                    revenue_series = fundamentals['series']['annual'].get('revenue', [])
 
-                    # Capital Employed z Balance Sheet
-                    total_assets = balance.get('totalAssets', 0)
-                    current_liabilities = balance.get('totalCurrentLiabilities', 0)
-                    capital_employed = total_assets - current_liabilities
+                    # Oblicz YoY growth z ostatnich 2 lat
+                    if len(revenue_series) >= 2:
+                        latest_revenue = revenue_series[0].get('v', 0)
+                        prev_revenue = revenue_series[1].get('v', 1)
 
-                    # Oblicz ROCE
-                    roce = (operating_income / capital_employed * 100) if capital_employed > 0 else 0
-
-                except Exception as e:
-                    logger.error(f"Blad pobierania fundamentals FMP dla {symbol}: {e}")
-                    # Ustaw wartosci domyslne jesli blad
-                    market_cap = 0
-                    roe = 0
-                    roce = 0
-                    debt_equity = 999
-                    revenue_growth = 0
-                    forward_pe = 999
+                        if prev_revenue > 0:
+                            revenue_growth = ((latest_revenue - prev_revenue) / prev_revenue) * 100
 
                 # === SPRAWDZ WSZYSTKIE KRYTERIA ===
                 meets_criteria = True
