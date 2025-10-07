@@ -79,15 +79,35 @@ docker-compose ps
 
 Oba kontenery powinny mieć status `Up (healthy)`.
 
-### 3. Run Backend (FastAPI)
+### 3. Create Database Tables
 
-Otwórz nowy terminal:
+**WAŻNE:** Ten krok jest wymagany tylko raz (przy pierwszym uruchomieniu):
 
 ```bash
 cd backend
 
-# Install dependencies
+# Install dependencies (jeśli jeszcze nie)
 pip install fastapi uvicorn sqlalchemy python-dotenv pydantic pydantic-settings redis yfinance
+
+# Create tables
+python create_tables.py
+```
+
+Powinno wyświetlić: `SUKCES! Tabele utworzone pomyslnie!`
+
+Weryfikacja:
+```bash
+docker exec multibagger-db psql -U postgres -d multibagger -c "\dt"
+```
+
+Powinny być 3 tabele: `users`, `portfolio_items`, `scan_results`.
+
+### 4. Run Backend (FastAPI)
+
+W tym samym terminalu (lub nowym):
+
+```bash
+cd backend
 
 # Start backend
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -98,7 +118,7 @@ Backend będzie dostępny na:
 - Health check: http://localhost:8000/health
 - Docs (Swagger UI): http://localhost:8000/docs
 
-### 4. Run Frontend (Next.js)
+### 5. Run Frontend (Next.js)
 
 Otwórz kolejny terminal:
 

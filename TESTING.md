@@ -106,7 +106,66 @@ multibagger-redis   redis:7-alpine       ...            redis      Up (healthy)
 
 - **Error: `ModuleNotFoundError`** → zainstaluj brakujące pakiety: `pip install [nazwa-pakietu]`
 - **Error: `Port 8000 already in use`** → zatrzymaj inny proces na porcie 8000
-- **Tabele nie utworzone w PostgreSQL** → sprawdź logi, upewnij się że PostgreSQL działa (TEST #1)
+- **Tabele nie utworzone w PostgreSQL** → uruchom skrypt tworzenia tabel:
+  ```bash
+  cd backend
+  python create_tables.py
+  ```
+  Powinno wyświetlić: `SUKCES! Tabele utworzone pomyslnie!`
+
+---
+
+## 🗃️ TEST #2.5: Tworzenie Tabel w Bazie Danych
+
+**Cel:** Stworzyć tabele aplikacji w PostgreSQL (users, portfolio_items, scan_results)
+
+### Kroki:
+
+1. Upewnij się że PostgreSQL działa (TEST #1)
+2. Przejdź do folderu backend:
+   ```bash
+   cd backend
+   ```
+
+3. Uruchom skrypt tworzenia tabel:
+   ```bash
+   python create_tables.py
+   ```
+
+### ✅ Expected Result:
+
+Skrypt powinien wyświetlić:
+```
+Tworzenie tabel w bazie danych...
+Znalezione modele: dict_keys(['users', 'portfolio_items', 'scan_results'])
+[... logi SQLAlchemy ...]
+SUKCES! Tabele utworzone pomyslnie!
+Lista tabel: ['users', 'portfolio_items', 'scan_results']
+```
+
+### Weryfikacja:
+
+Sprawdź czy tabele istnieją:
+```bash
+docker exec multibagger-db psql -U postgres -d multibagger -c "\dt"
+```
+
+Powinno zwrócić:
+```
+ Schema |      Name       | Type  |  Owner
+--------+-----------------+-------+----------
+ public | portfolio_items | table | postgres
+ public | scan_results    | table | postgres
+ public | users           | table | postgres
+```
+
+### ❌ Co robić jeśli nie działa:
+
+- **Error: Cannot connect to database** → Sprawdź czy PostgreSQL działa (TEST #1)
+- **Error: ModuleNotFoundError** → Zainstaluj zależności: `pip install sqlalchemy psycopg2-binary`
+- **Tabele już istnieją** → To OK! Skrypt sprawdza czy tabele istnieją przed utworzeniem
+
+**WAŻNE:** Ten krok jest wymagany tylko raz. Po utworzeniu tabel nie musisz tego powtarzać.
 
 ---
 

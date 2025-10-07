@@ -11,7 +11,9 @@
       "Bash(docker-compose:*)",
       "Bash(timeout 15 bash -c 'until docker-compose ps | grep -q \"\"healthy\"\"; do sleep 2; done')",
       "Bash(python -m pip install:*)",
-      "Bash(npx create-next-app:*)"
+      "Bash(npx create-next-app:*)",
+      "Bash(python:*)",
+      "Bash(docker exec:*)"
     ],
     "deny": [],
     "ask": []
