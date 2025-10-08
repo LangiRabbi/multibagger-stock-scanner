@@ -28,7 +28,7 @@
 ### Przykłady
 ```bash
 ✅ DOBRE
-git commit -m "feat(backend): Add Piotroski F-Score calculation"
+git commit -m "feat(backend): Add field_validator for symbols validation"
 git commit -m "fix(frontend): Fix portfolio delete button contrast (WCAG)"
 git commit -m "test(backend): Add pytest for /api/scan validation"
 

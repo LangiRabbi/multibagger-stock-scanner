@@ -60,34 +60,33 @@
 
 ## PRZYKŁADOWY FLOW
 
-### Feature: "Dodaj Piotroski F-Score"
+### Feature: "Fix 3 bugi P1 - walidacja"
 
 **1. Planning:**
 ```
-TY → @pm-agent: "Dodaj 10-ty wskaźnik Piotroski F-Score"
+TY → @pm-agent: "Napraw 3 bugi P1 znalezione przez @qa-agent"
 
 @pm-agent → @backend-agent:
-"Task: Implementuj Piotroski F-Score
-- Endpoint: POST /api/scan
-- 9 kryteriów finansowych
-- Scoring 0-9 → 0-10 pkt
-- Tests: 85% coverage
-- ETA: 4 godziny"
+"Task: Fix walidacja Pydantic
+- BUG 1: symbols: [] → 422 (nie 200)
+- BUG 2: min_volume: -1000 → 422 (nie 200)
+- BUG 3: 500 errors → proper error handling
+- Tests: Sprawdź czy fixed
+- ETA: 2 godziny"
 ```
 
 **2. Development:**
 ```
 @backend-agent:
 "Plan:
-1. Dodaję piotroski.py z 9 kryteriami
-2. Integruję w scanner.py
-3. Testy test_piotroski.py
-4. Commit: feat(backend): Add Piotroski F-Score
+1. Dodaję field_validator w schemas/scan.py
+2. Dodaję ge=0 dla min_volume
+3. Dodaję try-except w api/scan.py
+4. Uruchamiam pytest
 
 ⚠️ UWAGA: Zmieniam:
-- backend/app/services/piotroski.py (nowy)
-- backend/app/services/scanner.py
-- tests/test_piotroski.py (nowy)
+- backend/app/schemas/scan.py
+- backend/app/api/scan.py
 
 OK?"
 
@@ -98,40 +97,28 @@ TY: "OK"
 
 **3. Testing:**
 ```
-@backend-agent → @qa-agent: "Ready for testing: Piotroski F-Score"
+@backend-agent → @qa-agent: "Ready for testing: Bugfixy P1"
 
 @qa-agent:
 "Testing:
-✅ Unit tests pass (15/15)
-✅ Coverage 92%
-✅ Integration test pass
-❌ Bug: ZeroDivisionError gdy totalAssets = 0
+✅ test_scan_endpoint_validates_empty_symbols PASS
+✅ test_scan_endpoint_validates_negative_volume PASS
+✅ test_scan_endpoint_handles_scanner_exception PASS
+✅ Coverage 77% (target: 50%)
 
-Bug report → @backend-agent"
-
-@backend-agent: [fixuje bug]
-
-@qa-agent:
-"Re-test:
-✅ All tests pass
-✅ Coverage 94%
 Approval → @pm-agent"
 ```
 
-**4. Approval + Deploy:**
+**4. Approval + Commit:**
 ```
 @pm-agent:
-"Feature complete ✓
-- 10/10 wskaźników
-- Scoring 0-95 działa
-→ @devops-agent: Deploy"
+"Bugfixy complete ✓
+- 3/3 bugi P1 fixed
+- 77% coverage
+→ Commit + Push"
 
-@devops-agent:
-"Deploy:
-1. git push origin main
-2. Railway auto-deploy
-3. Health check: ✓
-4. Sentry monitoring: active"
+git commit -m "feat(backend): Fix P1 validation bugs + add test suite (77% coverage)"
+git push origin main
 ```
 
 ## KOMUNIKACJA (DAILY STANDUP)
@@ -146,16 +133,16 @@ Approval → @pm-agent"
 🎯 SPRINT 2 - DAY 5
 
 IN PROGRESS:
-- @backend-agent: Piotroski F-Score (80% done)
-- @qa-agent: 8 failed tests (fixing mocki)
+- @qa-agent: 2 failed tests (updating mocki)
+- @frontend-dev: Jest setup (testing framework)
 
 BLOCKERS:
 - None
 
 TODAY:
-1. Finish Piotroski (ETA: 2h)
-2. Fix failed tests (ETA: 3h)
-3. PR review (@pm-agent)
+1. Fix 2 failed tests (update mocki - ETA: 1h)
+2. Jest setup dla frontend (ETA: 2h)
+3. Sprint 2 finalizacja
 ```
 
 ## ESCALATION

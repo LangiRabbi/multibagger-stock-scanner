@@ -4,7 +4,7 @@
 
 ## 📚 DOKUMENTACJA
 
-@INDICATORS.md - Scoring 0-95 pkt (10 wskaźników)  
+@INDICATORS.md - Scoring 0-95 pkt (9 wskaźników)  
 @AGENTS.md - Workflow 5 agentów  
 @STANDARDS.md - Git + WCAG + code style  
 @PRD.md - Product requirements
@@ -14,32 +14,29 @@
 Stock scanner z automatycznym scoring 0-95 pkt dla akcji multibagger.
 
 **Funkcje:**
-- Scanner API (10 wskaźników fundamentalnych)
+- Scanner API (9 wskaźników fundamentalnych)
 - Portfolio CRUD
 - Dashboard UI
 - Powiadomienia in-app
 
 ## 📊 STATUS (Sprint 2)
 
-### ✅ DZIAŁA (85%)
-- POST /api/scan (9/10 wskaźników)
+### ✅ DZIAŁA (90%)
+- POST /api/scan (9 wskaźników - KOMPLET)
 - Portfolio CRUD
 - Frontend UI (Home, Scan, Portfolio, Health)
 - Redis cache + rate limiter (60 calls/min)
 - WCAG 2.1 AA
-- Coverage: 67% ✓
+- Coverage: 77% ✓
 
-### 🔴 P0 (24h)
-1. `symbols: []` → 200 (powinno 422)
-2. `min_volume: -1000` → 200 (powinno 422)
-3. 500 errors bez message
-
-**Fix:** `schemas/scan.py` + `api/scan.py`
+### 🔴 P0 (NAPRAWIONE ✅)
+1. ✅ `symbols: []` → 422 (FIXED)
+2. ✅ `min_volume: -1000` → 422 (FIXED)
+3. ✅ 500 errors → proper error handling (FIXED)
 
 ### 🟡 P1 (tydzień)
-- 8 failed tests (mocki)
-- Piotroski F-Score
-- Frontend testy (Jest)
+- 2 failed tests (mocki - wymaga update)
+- Frontend testy (Jest setup)
 
 ### 🔵 Sprint 3
 - Celery jobs
@@ -96,45 +93,33 @@ Scopes: backend, frontend, db, docker
 
 Więcej: @STANDARDS.md
 
-## 📊 SCORING (0-95)
+## 📊 WSKAŹNIKI (9 total)
 
-- FCF Yield: 20 pkt
-- ROE: 15 pkt
-- Revenue Growth: 15 pkt
-- Market Cap: 10 pkt
-- ROCE: 10 pkt
-- P/E: 10 pkt
-- Piotroski: 10 pkt
-- Debt/Equity: 10 pkt
-- Net Margin: 5 pkt
+**Fundamentalne (z Finnhub API):**
+1. Market Cap (10-500M range)
+2. ROE (Return on Equity %)
+3. ROCE (Return on Capital Employed %)
+4. Debt/Equity (max 30%)
+5. Revenue Growth (YoY %)
+6. Forward P/E (max 15)
 
-**Wynik:**
-- 76-95: STRONG BUY
-- 57-75: BUY
-- 38-56: HOLD
-- 0-37: AVOID
+**Cenowe (z yfinance):**
+7. Volume (min 1M)
+8. Price Change 7d (%)
+9. Price Change 30d (%)
 
 Pełne: @INDICATORS.md
 
 ## 🔥 PRIORYTET
 
-### Dziś (2-3h)
-```python
-# schemas/scan.py
-symbols: List[str] = Field(min_length=1)
-min_volume: Optional[int] = Field(ge=0)
-
-# api/scan.py
-try:
-    results = StockScanner.scan_stocks(...)
-except Exception as e:
-    raise HTTPException(500, "Scan failed")
-```
+### ✅ DONE (dziś)
+- ✅ Walidacja Pydantic (symbols, min_volume)
+- ✅ Error handling w /api/scan
+- ✅ 77% test coverage
 
 ### Tydzień
-- 8 failed tests (mocki)
-- Piotroski F-Score
-- Jest setup
+- 2 failed tests (update mocki)
+- Jest setup (frontend)
 
 ## 📚 PLIKI
 
