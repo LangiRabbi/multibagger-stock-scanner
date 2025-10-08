@@ -1,9 +1,9 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 ## Multibagger Stock Scanner
 
-**Version:** 1.1  
-**Last Updated:** 2025-10-08  
-**Status:** Sprint 2 (95% complete)
+**Version:** 1.2
+**Last Updated:** 2025-10-08
+**Status:** Sprint 2 ✅ COMPLETE
 
 ---
 
@@ -258,15 +258,15 @@ Inwestorzy ręcznie przeglądają setki akcji, tracąc czas i pomijając okazje.
 - Redis cache
 - Basic routing
 
-### Sprint 2 ✅ 95% DONE (CURRENT)
+### Sprint 2 ✅ COMPLETE
 **Week 3-5:**
-- ✅ Scan engine (9 wskaźników - KOMPLET)
+- ✅ Scan engine (9 wskaźników fundamentalnych)
 - ✅ Portfolio CRUD
-- ✅ Dashboard UI
-- ✅ WCAG 2.1 AA
-- ✅ 3 bugi P0 (FIXED!)
-- ✅ 77% test coverage
-- 🟡 2 failed tests (update mocki)
+- ✅ Dashboard UI (Home, Scan, Portfolio, Health)
+- ✅ WCAG 2.1 AA compliance
+- ✅ 3 bugi P0 FIXED
+- ✅ 78% test coverage (37/37 tests PASS)
+- ✅ Redis cache + rate limiter (60 calls/min)
 
 ### Sprint 3 ⏳ PLANNED (2-3 tygodnie)
 **Week 6-8:**

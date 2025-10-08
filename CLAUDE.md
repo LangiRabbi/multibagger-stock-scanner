@@ -1,6 +1,6 @@
 # 🎯 STOCK SCANNER - ESSENTIALS
 
-**Version:** 2.1 | **Updated:** 2025-10-08 | **Status:** Sprint 2 (65%)
+**Version:** 2.2 | **Updated:** 2025-10-08 | **Status:** Sprint 2 ✅ DONE (100%)
 
 ## 📚 DOKUMENTACJA
 
@@ -21,22 +21,15 @@ Stock scanner z automatycznym scoring 0-95 pkt dla akcji multibagger.
 
 ## 📊 STATUS (Sprint 2)
 
-### ✅ DZIAŁA (90%)
-- POST /api/scan (9 wskaźników - KOMPLET)
-- Portfolio CRUD
-- Frontend UI (Home, Scan, Portfolio, Health)
-- Redis cache + rate limiter (60 calls/min)
-- WCAG 2.1 AA
-- Coverage: 77% ✓
-
-### 🔴 P0 (NAPRAWIONE ✅)
-1. ✅ `symbols: []` → 422 (FIXED)
-2. ✅ `min_volume: -1000` → 422 (FIXED)
-3. ✅ 500 errors → proper error handling (FIXED)
-
-### 🟡 P1 (tydzień)
-- 2 failed tests (mocki - wymaga update)
-- Frontend testy (Jest setup)
+### ✅ SPRINT 2 DONE (100%)
+- ✅ POST /api/scan (9 wskaźników - KOMPLET)
+- ✅ Portfolio CRUD
+- ✅ Frontend UI (Home, Scan, Portfolio, Health)
+- ✅ Redis cache + rate limiter (60 calls/min)
+- ✅ WCAG 2.1 AA
+- ✅ Coverage: 78% (target: 50%)
+- ✅ All tests PASS (37/37)
+- ✅ 0 bugs P0/P1
 
 ### 🔵 Sprint 3
 - Celery jobs
@@ -112,14 +105,17 @@ Pełne: @INDICATORS.md
 
 ## 🔥 PRIORYTET
 
-### ✅ DONE (dziś)
-- ✅ Walidacja Pydantic (symbols, min_volume)
-- ✅ Error handling w /api/scan
-- ✅ 77% test coverage
+### ✅ SPRINT 2 COMPLETE
+- ✅ 9 wskaźników fundamentalnych
+- ✅ Walidacja Pydantic + error handling
+- ✅ 78% test coverage (37/37 PASS)
+- ✅ Redis cache + rate limiter
+- ✅ WCAG 2.1 AA
 
-### Tydzień
-- 2 failed tests (update mocki)
-- Jest setup (frontend)
+### 📅 Sprint 3 (start: dzisiaj)
+- Celery background jobs
+- JWT authentication
+- Jest frontend tests
 
 ## 📚 PLIKI
 

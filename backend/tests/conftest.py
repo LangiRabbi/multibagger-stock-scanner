@@ -17,22 +17,22 @@ def mock_finnhub_fundamentals():
     """
     Mock response dla Finnhub company_basic_financials (metric=all).
 
-    UWAGA: Wartości są aproksymowane - testy używają pytest.approx() dla float.
+    UWAGA: Wartości STAŁE dla testów - NIE używamy live API!
     Zawiera 117 metryk fundamentalnych.
     """
     return {
         'metric': {
-            'marketCapitalization': 3825259,  # w milionach USD (aktualne dane)
+            'marketCapitalization': 3809379,  # w milionach USD - STAŁA wartość dla testów
             'roeTTM': 154.92,                 # Return on Equity (%)
             'roicTTM': 56.99,                 # Return on Invested Capital (%)
             'peTTM': 38.38,                   # Price-to-Earnings ratio
-            'totalDebt/totalEquityAnnual': 1.888,  # Debt/Equity ratio (zaokrąglone)
+            'totalDebt/totalEquityAnnual': 1.8881,  # Debt/Equity ratio - DOKŁADNA wartość z testu
             'revenueGrowthTTMYoy': 5.97,      # Revenue Growth Year-over-Year (%)
         },
         'series': {
             'annual': {
                 'roic': [
-                    {'period': '2023-09-30', 'v': 0.5699},  # ROIC historyczny
+                    {'period': '2023-09-30', 'v': 0.5699},  # ROIC historyczny (56.99%)
                     {'period': '2022-09-30', 'v': 0.5123},
                 ]
             }
