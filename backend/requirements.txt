@@ -11,8 +11,9 @@ python-dotenv==1.0.1
 pydantic==2.9.2
 pydantic-settings==2.5.2
 
-# Redis (cache)
+# Redis (cache) + Rate Limiting
 redis==5.0.1
+ratelimit==2.2.1
 
 # Data fetching (yfinance for price changes + Finnhub for fundamentals)
 yfinance==0.2.32

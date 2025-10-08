@@ -5,6 +5,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface PortfolioItem {
   id: number
@@ -109,31 +110,36 @@ export default function PortfolioPage() {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Portfolio</h1>
-        <div className="animate-pulse">
-          <div className="h-32 bg-gray-200 rounded"></div>
+      <ErrorBoundary>
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Portfolio</h1>
+          <div className="animate-pulse">
+            <div className="h-32 bg-gray-200 rounded"></div>
+          </div>
         </div>
-      </div>
+      </ErrorBoundary>
     )
   }
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Portfolio</h1>
-        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
-          <p className="text-red-800 font-medium">Error: {error}</p>
-          <p className="text-sm text-gray-800 mt-2">
-            Upewnij się że backend działa na http://localhost:8000
-          </p>
+      <ErrorBoundary>
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Portfolio</h1>
+          <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
+            <p className="text-red-800 font-medium">Error: {error}</p>
+            <p className="text-sm text-gray-800 mt-2">
+              Upewnij się że backend działa na http://localhost:8000
+            </p>
+          </div>
         </div>
-      </div>
+      </ErrorBoundary>
     )
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <ErrorBoundary>
+      <div className="max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">My Portfolio</h1>
         <button
@@ -259,6 +265,7 @@ export default function PortfolioPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

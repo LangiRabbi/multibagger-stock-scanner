@@ -34,7 +34,8 @@ class StockScanner:
         min_roce: Optional[float] = 10.0,                  # min 10% ROCE
         max_debt_equity: Optional[float] = 0.3,            # max 30% zadluzenie
         min_revenue_growth: Optional[float] = 15.0,        # min 15% wzrost przychodow
-        max_forward_pe: Optional[float] = 15.0             # max P/E = 15 (tanie)
+        max_forward_pe: Optional[float] = 15.0,            # max P/E = 15 (tanie)
+        save_to_db: bool = True                            # czy zapisac wyniki do bazy
     ) -> List[StockResult]:
         """
         Skanuje liste akcji i zwraca te ktore spelniaja kryteria MULTIBAGGER.
@@ -87,14 +88,16 @@ class StockScanner:
                     price_first = float(hist["Close"].iloc[0])
                     price_change_30d = ((current_price_hist - price_first) / price_first) * 100
 
-                # === REAL-TIME PRICE/VOLUME Z FINNHUB ===
+                # === REAL-TIME PRICE Z FINNHUB ===
                 quote = finnhub.get_quote(symbol)
                 if not quote:
                     logger.warning(f"Brak danych quote Finnhub dla {symbol}")
                     continue
 
                 current_price = quote.get('c', 0)  # current price
-                current_volume = int(quote.get('v', 0))  # volume
+
+                # === VOLUME Z YFINANCE (Finnhub czasem nie zwraca volume) ===
+                current_volume = int(hist["Volume"].iloc[-1]) if not hist.empty else 0
 
                 # === FUNDAMENTALS Z FINNHUB (1 API call!) ===
                 fundamentals = finnhub.get_fundamentals(symbol)
@@ -197,46 +200,49 @@ class StockScanner:
                 logger.error(f"Error scanning {symbol}: {e}")
                 continue
 
-        # === ZAPISZ WYNIKI DO BAZY DANYCH ===
-        db = SessionLocal()
-        try:
-            for result in results:
-                # Stworz nowy rekord w tabeli scan_results
-                scan_record = ScanResultModel(
-                    symbol=result.symbol,
-                    price=result.price,
-                    volume=result.volume,
-                    # criteria_met to JSON - zapisujemy wszystkie kryteria
-                    criteria_met={
-                        "volume": result.volume,
-                        "price_change_7d": result.price_change_7d,
-                        "market_cap": result.market_cap,
-                        "roe": result.roe,
-                        "roce": result.roce,
-                        "debt_equity": result.debt_equity,
-                        "revenue_growth": result.revenue_growth,
-                        "forward_pe": result.forward_pe
-                    },
-                    # Fundamentals w osobnych kolumnach
-                    market_cap=result.market_cap,
-                    roe=result.roe,
-                    roce=result.roce,
-                    debt_equity=result.debt_equity,
-                    revenue_growth=result.revenue_growth,
-                    forward_pe=result.forward_pe,
-                    price_change_7d=result.price_change_7d,
-                    price_change_30d=result.price_change_30d,
-                    meets_criteria=result.meets_criteria
-                )
-                db.add(scan_record)
+        # === ZAPISZ WYNIKI DO BAZY DANYCH (opcjonalne) ===
+        if save_to_db:
+            db = SessionLocal()
+            try:
+                for result in results:
+                    # Stworz nowy rekord w tabeli scan_results
+                    scan_record = ScanResultModel(
+                        symbol=result.symbol,
+                        price=result.price,
+                        volume=result.volume,
+                        # criteria_met to JSON - zapisujemy wszystkie kryteria
+                        criteria_met={
+                            "volume": result.volume,
+                            "price_change_7d": result.price_change_7d,
+                            "market_cap": result.market_cap,
+                            "roe": result.roe,
+                            "roce": result.roce,
+                            "debt_equity": result.debt_equity,
+                            "revenue_growth": result.revenue_growth,
+                            "forward_pe": result.forward_pe
+                        },
+                        # Fundamentals w osobnych kolumnach
+                        market_cap=result.market_cap,
+                        roe=result.roe,
+                        roce=result.roce,
+                        debt_equity=result.debt_equity,
+                        revenue_growth=result.revenue_growth,
+                        forward_pe=result.forward_pe,
+                        price_change_7d=result.price_change_7d,
+                        price_change_30d=result.price_change_30d,
+                        meets_criteria=result.meets_criteria
+                    )
+                    db.add(scan_record)
 
-            db.commit()
-            logger.info(f"Zapisano {len(results)} wynikow skanowania do bazy danych")
+                db.commit()
+                logger.info(f"Zapisano {len(results)} wynikow skanowania do bazy danych")
 
-        except Exception as e:
-            logger.error(f"Blad zapisu do bazy danych: {e}")
-            db.rollback()
-        finally:
-            db.close()
+            except Exception as e:
+                logger.error(f"Blad zapisu do bazy danych: {e}")
+                db.rollback()
+            finally:
+                db.close()
+        else:
+            logger.info("Pomijam zapis do bazy danych (save_to_db=False)")
 
         return results

@@ -1,539 +1,297 @@
-# Product Requirements Document (PRD)
+# PRODUCT REQUIREMENTS DOCUMENT (PRD)
 ## Multibagger Stock Scanner
 
-**Version:** 1.0
-**Last Updated:** 2025-10-07
-**Status:** Draft
+**Version:** 1.1  
+**Last Updated:** 2025-10-08  
+**Status:** Sprint 2 (65% complete)
 
 ---
 
-## 1. Executive Summary
+## EXECUTIVE SUMMARY
 
-Multibagger Stock Scanner to aplikacja webowa pozwalająca inwestorom automatycznie skanować rynki akcji w poszukiwaniu okazji inwestycyjnych spełniających określone kryteria techniczne i fundamentalne. System wykorzystuje wieloagentową architekturę do zarządzania cyklem życia produktu od planowania przez development, testing aż po deployment.
+Stock scanner z automatycznym scoring 0-95 pkt dla akcji wysokowzrostowych (multibaggers). Wykorzystuje 10 wskaźników fundamentalnych z badań Yartseva (2025).
 
 **Główne cele:**
-- Automatyczne skanowanie akcji na podstawie konfigurowalnych kryteriów
-- Zarządzanie portfolio kandydatów
-- Wizualizacja danych i trendów
-- Automatyczne powiadomienia o nowych okazjach
+- Automatyczne skanowanie (10 wskaźników)
+- Portfolio CRUD
+- Dashboard UI (wykresy, tabele)
+- Powiadomienia in-app
 
 ---
 
-## 2. Problem Statement
+## PROBLEM STATEMENT
 
-Inwestorzy muszą ręcznie przeglądać setki akcji, tracąc czas i często pomijając wartościowe okazje. Brakuje narzędzia, które:
-- Automatycznie filtruje akcje według kryterium fundamentalnych i technicznych
-- Śledzi portfolio kandydatów w czasie rzeczywistym
-- Dostarcza akcjonalne insighty bez przytłaczania informacjami
-
----
-
-## 3. Target Audience
-
-**Primary Users:**
-- Inwestorzy indywidualni (retail) z podstawową wiedzą o rynkach
-- Day traderzy szukający sygnałów wejścia
-- Analitycy chcący automatyzować screening
-
-**User Personas:**
-- **Jan (Retail Investor):** 35 lat, inwestuje oszczędności, szuka okazji długoterminowych
-- **Anna (Day Trader):** 28 lat, aktywnie traduje, potrzebuje szybkich alertów
-- **Marek (Analyst):** 42 lata, analizuje dziesiątki spółek dziennie, potrzebuje automatyzacji
+Inwestorzy ręcznie przeglądają setki akcji, tracąc czas i pomijając okazje. Brakuje narzędzia z:
+- Automatycznym filtrowaniem (fundamentals + technicals)
+- Tracking portfolio w czasie rzeczywistym
+- Akcjonalnymi insightami bez przytłaczania
 
 ---
 
-## 4. Core Features & Requirements
+## TARGET AUDIENCE
 
-### 4.1 Stock Scanning Engine (MVP)
-**Priority:** P0 (Must Have)
+**Primary:**
+- Inwestorzy indywidualni (retail) - oszczędności długoterminowe
+- Day traderzy - szybkie sygnały wejścia
+- Analitycy - automatyzacja screeningu
 
-**User Story:**
-_"Jako inwestor chcę automatycznie skanować akcje według zdefiniowanych kryteriów, aby znaleźć potencjalne okazje inwestycyjne."_
+---
 
-**Functional Requirements:**
-- [ ] Integracja z yfinance do pobierania danych (OHLCV, volume, market cap)
-- [ ] Konfigurowalne kryteria skanowania:
-  - Volume > threshold (np. 1M)
-  - Price change % (dzień, tydzień, miesiąc)
-  - RSI (Relative Strength Index)
-  - Moving averages (SMA 50/200)
-  - Market cap range
-- [ ] Endpoint `POST /api/scan` przyjmujący JSON z kryteriami
-- [ ] Zwraca listę symboli spełniających kryteria + podstawowe metryki
-- [ ] Rate limiting (max 10 req/min)
+## CORE FEATURES
 
-**Technical Requirements:**
-- FastAPI backend
-- SQLAlchemy do persystencji wyników
-- Celery + Redis do asynchronicznych skanów
-- Cache (Redis) na 15 min dla danych rynkowych
+### 4.1 Stock Scanning Engine (MVP) ✅ 85%
+**Priority:** P0
+
+**Status:**
+- ✅ Integracja Finnhub (131 metryk FREE)
+- ✅ yfinance (volume)
+- ✅ 9/10 wskaźników (brakuje: Piotroski)
+- ✅ Scoring 0-95 pkt
+- ✅ Endpoint POST /api/scan
+- ✅ Rate limiting (60/min)
+- ✅ Redis cache (15 min)
+
+**Bugs P0:**
+1. Brak walidacji `symbols: []`
+2. Brak walidacji `min_volume: -1000`
+3. 500 errors bez message
 
 **Acceptance Criteria:**
-- Skan 100 akcji trwa < 60s
-- Accuracy 95%+ (porównanie z ręcznym screeningiem)
-- API response time < 2s
+- ✅ Skan 100 akcji < 60s
+- ⏳ Accuracy >95% (pending Piotroski)
+- ✅ API response < 2s
 
 ---
 
-### 4.2 Portfolio Management
-**Priority:** P0 (Must Have)
+### 4.2 Portfolio Management (MVP) ✅ 90%
+**Priority:** P0
 
-**User Story:**
-_"Jako użytkownik chcę zapisywać ciekawe akcje do portfolio kandydatów, aby śledzić ich rozwój w czasie."_
-
-**Functional Requirements:**
-- [ ] CRUD dla portfolio:
-  - `POST /api/portfolio` – dodaj pozycję (symbol, notes, entry price)
-  - `GET /api/portfolio` – lista pozycji
-  - `PUT /api/portfolio/{id}` – edytuj notatkę
-  - `DELETE /api/portfolio/{id}` – usuń pozycję
-- [ ] Automatyczne odświeżanie cen (daily via Celery beat)
-- [ ] Tracking P&L (profit/loss) dla każdej pozycji
-
-**Technical Requirements:**
-- PostgreSQL do przechowywania portfolio
-- Authentication (JWT tokens)
-- User-specific data isolation
+**Status:**
+- ✅ CRUD endpoints (GET/POST/PUT/DELETE)
+- ✅ SQLAlchemy models
+- ✅ User isolation (MOCK_USER_ID)
+- ⏳ JWT auth (Sprint 3)
+- ⏳ Daily price refresh (Celery - Sprint 3)
 
 **Acceptance Criteria:**
-- User może dodać/usunąć/edytować pozycje
-- Ceny aktualizują się codziennie o 8:00 UTC
-- P&L kalkulacja z accuracy 100%
+- ✅ User add/edit/delete pozycje
+- ⏳ Ceny aktualizują się daily (Sprint 3)
 
 ---
 
-### 4.3 Dashboard UI
-**Priority:** P0 (Must Have)
+### 4.3 Dashboard UI (MVP) ✅ 75%
+**Priority:** P0
 
-**User Story:**
-_"Jako użytkownik chcę mieć dashboard z listą kandydatów i wykresami, aby szybko ocenić sytuację rynkową."_
-
-**Functional Requirements:**
-- [ ] Widok główny:
-  - Tabela kandydatów (symbol, price, change %, volume)
-  - Sortowanie/filtrowanie
-  - Pagination (50 per page)
-- [ ] Wykresy:
-  - Candlestick chart dla wybranej akcji (7-90 dni)
-  - Volume bars
-  - Moving averages overlay
-- [ ] Formularz dodawania do portfolio
-- [ ] Responsive design (mobile-friendly)
-
-**Technical Requirements:**
-- Next.js 14 (App Router)
-- Recharts lub Chart.js dla wykresów
-- Tailwind CSS + shadcn/ui components
-- React Query do cache'owania
+**Status:**
+- ✅ Home page
+- ✅ Scan page (formularz + results table)
+- ✅ Portfolio page (CRUD)
+- ✅ Health check page
+- ✅ Toast notifications
+- ✅ ErrorBoundary
+- ✅ WCAG 2.1 AA compliance
+- ⏳ Wykresy (Recharts - Sprint 3)
 
 **Acceptance Criteria:**
-- Dashboard ładuje się < 3s
-- Wykresy responsywne (działa na mobile 375px+)
-- Lighthouse score > 85
+- ✅ Dashboard < 3s load
+- ✅ Responsive (mobile 375px+)
+- ✅ Lighthouse score > 85
 
 ---
 
-### 4.4 Automated Notifications (n8n)
-**Priority:** P1 (Should Have)
+### 4.4 Automated Notifications ⏳ Sprint 3
+**Priority:** P1
 
-**User Story:**
-_"Jako użytkownik chcę otrzymywać powiadomienia email/Slack, gdy skan znajdzie nowe okazje."_
-
-**Functional Requirements:**
-- [ ] Webhook w FastAPI (`POST /api/webhooks/scan-complete`)
-- [ ] n8n workflow:
-  - Trigger: Webhook od FastAPI
-  - Filter: Tylko nowe kandydaty (nie w portfolio)
-  - Send email via SendGrid/SMTP
-  - Slack message (optional)
-- [ ] Configurable w UI (włącz/wyłącz notyfikacje)
-
-**Technical Requirements:**
-- n8n self-hosted (Docker) lub cloud
-- Environment vars dla SMTP/Slack credentials
-- Rate limiting (max 1 email/godzinę)
-
-**Acceptance Criteria:**
-- Email dostarczany < 5 min od znalezienia
-- 0 false positives (tylko nowe kandydaty)
+**Status:**
+- ✅ In-app notifications (toast)
+- ⏳ n8n webhooks (email/Slack - opcjonalnie)
 
 ---
 
-### 4.5 Background Jobs
-**Priority:** P0 (Must Have)
+### 4.5 Background Jobs ⏳ Sprint 3
+**Priority:** P0
 
-**User Story:**
-_"Jako system chcę automatycznie skanować rynek codziennie i aktualizować dane."_
-
-**Functional Requirements:**
-- [ ] Celery Beat scheduler:
-  - Daily scan o 9:00 UTC (po otwarciu US markets)
-  - Portfolio price refresh o 8:00 UTC
-  - Cleanup starych scanów (>30 dni) o 2:00 UTC
-- [ ] Monitoring (Flower dashboard)
-
-**Technical Requirements:**
-- Celery + Redis broker
-- PostgreSQL jako result backend
-- Docker Compose dla local dev
-- Sentry do error tracking
-
-**Acceptance Criteria:**
-- Jobs działają zgodnie z schedule (99.9% uptime)
-- Retry logic (3 próby przy failure)
-- Alerting przy krytycznych błędach
+**Status:**
+- ⏳ Celery Beat scheduler
+- ⏳ Daily scan (9:00 UTC)
+- ⏳ Price refresh (8:00 UTC)
+- ⏳ Cleanup (>30 dni)
 
 ---
 
-### 4.6 User Authentication
-**Priority:** P1 (Should Have)
+### 4.6 User Authentication ⏳ Sprint 3
+**Priority:** P1
 
-**User Story:**
-_"Jako użytkownik chcę mieć prywatne portfolio zabezpieczone hasłem."_
-
-**Functional Requirements:**
-- [ ] Rejestracja/login (email + password)
-- [ ] JWT tokens (access + refresh)
-- [ ] Password reset via email
-- [ ] OAuth2 (Google/GitHub) – opcjonalnie P2
-
-**Technical Requirements:**
-- FastAPI Users library
-- bcrypt do hashowania haseł
-- Redis do session management
-
-**Acceptance Criteria:**
-- OWASP compliance (password strength, rate limiting)
-- Token expiry: 1h (access), 7d (refresh)
+**Status:**
+- ⏳ JWT tokens (access + refresh)
+- ⏳ Rejestracja/login
+- ⏳ Password reset
+- ⏳ OAuth2 (Google - opcjonalnie Sprint 4)
 
 ---
 
-### 4.7 Advanced Filtering (Post-MVP)
-**Priority:** P2 (Nice to Have)
+## TECH ARCHITECTURE
 
-**Functional Requirements:**
-- [ ] Custom indicator formulas (user-defined)
-- [ ] Backtesting engine (simulate strategy)
-- [ ] Sector/industry filters
-- [ ] Fundamental ratios (P/E, P/B, debt/equity)
-
----
-
-## 5. Technical Architecture
-
-### 5.1 Stack Overview
+### 5.1 Stack
 
 **Backend:**
 - FastAPI (Python 3.11+)
 - PostgreSQL 15
-- SQLAlchemy ORM
+- SQLAlchemy 2.0
 - Celery + Redis
-- yfinance for market data
+- Finnhub (131 metryk FREE) + yfinance (volume)
 
 **Frontend:**
-- Next.js 14 (React 18)
+- Next.js 15 (React 18)
 - TypeScript
-- Tailwind CSS + shadcn/ui
-- Recharts
+- Tailwind CSS 4 + shadcn/ui
+- Recharts (wykresy - Sprint 3)
 
 **Infrastructure:**
 - Docker + Docker Compose
-- Railway.app or Render (hosting)
-- n8n (workflows)
+- Railway.app (hosting)
 - GitHub Actions (CI/CD)
+- n8n (opcjonalnie - Sprint 3)
 
-### 5.2 UI/UX & Accessibility Guidelines
+### 5.2 Database Schema
 
-**⚠️ OBOWIĄZKOWE: Wszystkie strony MUSZĄ spełniać WCAG 2.1 Level AA**
-
-#### 5.2.1 Color Contrast Requirements
-
-**Minimum Ratios (WCAG 2.1 AA):**
-- Normal text (< 18px): **4.5:1**
-- Large text (≥ 18px or ≥ 14px bold): **3:1**
-- UI Components (borders, icons): **3:1**
-
-#### 5.2.2 Approved Color Palette (Tailwind Classes)
-
-**✅ WCAG-Compliant Colors:**
-
-| Element | Tailwind Class | Hex Color | Contrast Ratio (white bg) | Usage |
-|---------|---------------|-----------|---------------------------|-------|
-| **Primary Headings** | `text-gray-900` | `#111827` | **21:1** ✓ | h1, h2, main titles |
-| **Body Text** | `text-gray-800` | `#1F2937` | **12:1** ✓ | Paragraphs, descriptions |
-| **Secondary Text** | `text-gray-700` | `#374151` | **7:1** ✓ | Labels, captions |
-| **Disabled/Muted** | `text-gray-600` | `#4B5563` | **4.6:1** ✓ | Disabled states |
-| **Placeholders** | `text-gray-500` | `#6B7280` | **4.5:1** ✓ | Input placeholders |
-| **Primary Links** | `text-blue-700` | `#1D4ED8` | **7.7:1** ✓ | Clickable links |
-| **Link Hover** | `text-blue-900` | `#1E3A8A` | **12.6:1** ✓ | Link hover state |
-| **Success** | `text-green-700` | `#15803D` | **4.7:1** ✓ | Success messages |
-| **Error** | `text-red-700` | `#B91C1C` | **5.9:1** ✓ | Error messages |
-| **Warning** | `text-yellow-700` | `#A16207` | **4.7:1** ✓ | Warnings |
-
-**❌ FORBIDDEN Colors (Poor Contrast):**
-- `text-gray-400`, `text-gray-300`, `text-gray-200` - **NEVER USE for text**
-- `text-blue-400`, `text-green-400` - **NEVER USE on white background**
-
-#### 5.2.3 Typography Standards
-
-**Font Sizes & Weights:**
-```css
-/* Headings - always text-gray-900 */
-h1: text-4xl font-bold text-gray-900    /* 36px */
-h2: text-3xl font-bold text-gray-900    /* 30px */
-h3: text-2xl font-bold text-gray-900    /* 24px */
-h4: text-xl font-bold text-gray-900     /* 20px */
-
-/* Body Text - text-gray-800 */
-p: text-base text-gray-800              /* 16px */
-small: text-sm text-gray-700            /* 14px */
-
-/* Labels - text-gray-900 font-bold */
-label: text-sm font-bold text-gray-900  /* 14px bold */
-
-/* Links - text-blue-700 hover:text-blue-900 */
-a: text-blue-700 hover:text-blue-900 underline
-```
-
-#### 5.2.4 Form Elements Standards
-
-**Input Fields:**
-```tsx
-<input
-  className="border-2 border-gray-400 bg-white text-gray-900
-             placeholder-gray-500 focus:border-blue-500 focus:outline-none
-             px-3 py-2 rounded"
-  placeholder="Enter value"
-/>
-```
-
-**Buttons:**
-```tsx
-/* Primary */
-<button className="bg-blue-600 text-white font-semibold hover:bg-blue-700
-                   px-4 py-2 rounded">
-  Submit
-</button>
-
-/* Danger */
-<button className="bg-red-600 text-white font-semibold hover:bg-red-700
-                   px-4 py-2 rounded">
-  Delete
-</button>
-
-/* Secondary */
-<button className="border-2 border-gray-400 text-gray-900 font-semibold
-                   hover:bg-gray-100 px-4 py-2 rounded">
-  Cancel
-</button>
-```
-
-#### 5.2.5 WCAG Checklist (Every Page)
-
-**Before Deployment:**
-- [ ] All text has contrast ≥ 4.5:1 (normal) or ≥ 3:1 (large)
-- [ ] All interactive elements (buttons, links) have ≥ 3:1 contrast
-- [ ] Focus indicators visible (blue border)
-- [ ] Keyboard navigation works (Tab, Enter, Space)
-- [ ] Alt text for all images/icons
-- [ ] Forms have labels with `for` attribute
-- [ ] Error messages are descriptive and high-contrast
-- [ ] No color-only information (use icons/text too)
-
-**Testing Tools:**
-- Chrome DevTools: Lighthouse (Accessibility score ≥ 90)
-- WebAIM Contrast Checker: https://webaim.org/resources/contrastchecker/
-- axe DevTools: https://www.deque.com/axe/devtools/
-
-#### 5.2.6 Dark Mode (Future)
-
-**⚠️ Sprint 4+** - Gdy dodajemy dark mode, kontrasty muszą być odwrócone:
-- Background: `bg-gray-900`
-- Text: `text-gray-100` (ratio ≥ 15:1)
-- Secondary: `text-gray-300` (ratio ≥ 9:1)
-
----
-
-### 5.3 System Diagram
-
-```
-┌─────────────┐
-│   Browser   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────┐      ┌──────────────┐
-│  Next.js (UI)   │─────▶│  FastAPI     │
-└─────────────────┘      └──────┬───────┘
-                                │
-                    ┌───────────┼───────────┐
-                    ▼           ▼           ▼
-              ┌──────────┐ ┌────────┐ ┌────────┐
-              │PostgreSQL│ │ Redis  │ │ Celery │
-              └──────────┘ └────────┘ └────────┘
-                                         │
-                                         ▼
-                                    ┌─────────┐
-                                    │  n8n    │
-                                    └─────────┘
-```
-
-### 5.4 Database Schema (Core Tables)
-
-**users**
-- id (PK)
-- email (unique)
-- hashed_password
-- created_at
+**users** (Sprint 3)
+- id, email, hashed_password, created_at
 
 **portfolio_items**
-- id (PK)
-- user_id (FK)
-- symbol
-- entry_price
-- quantity
-- notes
-- added_at
+- id, user_id (FK), symbol, entry_price, quantity, notes, added_at
 
 **scan_results**
-- id (PK)
-- symbol
-- scan_date
-- criteria_met (JSON)
-- price
-- volume
+- id, symbol, scan_date, criteria_met (JSON), price, volume, score
 
 ---
 
-## 6. Multi-Agent Development Workflow
+## RELEASE PLAN
 
-### 6.1 Agents & Responsibilities
+### ✅ v0.1 (MVP) - Week 7 (CURRENT)
+**Sprint 2 - 65% complete**
 
-| Agent | Role | Tools | Responsibilities |
-|-------|------|-------|------------------|
-| **@pm-agent** | Product Manager | read_file, list_files | Feature breakdown, backlog, acceptance |
-| **@backend-agent** | Backend Developer | read_file, write_file, run_terminal, git | FastAPI, SQLAlchemy, Celery, integrations |
-| **@frontend-agent** | Frontend Developer | read_file, write_file, run_terminal | Next.js, UI components, charts |
-| **@qa-agent** | QA Engineer | read_file, run_terminal, list_files | Pytest, integration tests, bug reports |
-| **@devops-agent** | DevOps Engineer | read_file, write_file, run_terminal, git | Docker, n8n, deployment, CI/CD |
+**Done:**
+- ✅ Stock scanning (9/10 wskaźników)
+- ✅ Portfolio CRUD
+- ✅ Dashboard UI (Home, Scan, Portfolio, Health)
+- ✅ Redis cache + rate limiter
+- ✅ WCAG 2.1 AA
+- ✅ Coverage 67%
 
-### 6.2 Development Phases
+**To fix (24h):**
+- 🔴 3 bugi walidacji
+- 🔴 8 failed tests (mocki)
 
-**Phase 1: Foundation (Week 1-2)**
-- @pm-agent: Rozbij PRD na epic/tasks
-- @backend-agent: Setup FastAPI, PostgreSQL, modele danych
-- @frontend-agent: Next.js scaffold, routing, basic layout
-- @devops-agent: Docker Compose, environment config
-
-**Phase 2: Core Features (Week 3-5)**
-- @backend-agent: Scan engine, portfolio CRUD, Celery jobs
-- @frontend-agent: Dashboard, wykresy, formularze
-- @qa-agent: Unit tests (coverage >80%)
-
-**Phase 3: Integration (Week 6)**
-- @backend-agent: n8n webhook integration
-- @frontend-agent: Auth UI (login/register)
-- @qa-agent: Integration tests, E2E (Playwright)
-
-**Phase 4: Deployment (Week 7)**
-- @devops-agent: Railway setup, CI/CD pipelines
-- @qa-agent: Performance testing, security audit
-- @pm-agent: User acceptance testing
-
-### 6.3 Communication Protocol
-
-**Daily Standup (async):**
-- @pm-agent posts:
-  - What's in progress
-  - Blockers
-  - Today's priorities
-
-**Task Assignment:**
-```
-@pm-agent → @backend-agent: "Implement /api/scan endpoint"
-@backend-agent → @qa-agent: "Ready for testing: /api/scan"
-@qa-agent → @pm-agent: "Bug found: timeout on 500+ symbols"
-@pm-agent → @backend-agent: "Fix timeout bug (P0)"
-```
-
-**Definition of Done:**
-- Code reviewed
-- Tests passing (unit + integration)
-- Deployed to staging
-- @pm-agent approval
+**To finish (tydzień):**
+- 🟡 Piotroski F-Score (10-ty wskaźnik)
+- 🟡 Frontend testy (Jest setup)
 
 ---
 
-## 7. Success Metrics
+### ⏳ v0.2 - Sprint 3 (2-3 tygodnie)
+- Celery background jobs (daily scan, price refresh)
+- JWT authentication
+- Powiadomienia in-app (bell icon)
+- n8n webhooks (email/Slack - opcjonalnie)
 
-**Product Metrics:**
-- MAU (Monthly Active Users): 100+ by Month 3
+---
+
+### ⏳ v0.3 - Sprint 4 (tydzień 14)
+- Wykresy (Recharts: candlestick, volume)
+- Advanced filters (RSI, MA)
+- Mobile optimization
+- OAuth2 (Google/GitHub)
+
+---
+
+### ⏳ v1.0 - Produkcja
+- Railway deployment
+- Monitoring (Sentry)
+- Performance optimization
+- User onboarding
+
+---
+
+## SUCCESS METRICS
+
+### Technical (CURRENT)
+- ✅ API uptime: 99.5%
+- ✅ P95 response: <2s
+- ✅ Test coverage: 67% (target 50%)
+- ⏳ Zero critical vulnerabilities (Sentry - Sprint 3)
+
+### Product (Post-MVP)
+- MAU: 100+ (Month 3)
 - Scan accuracy: >95%
 - User retention: >60% (Month 2)
-- Avg scans per user/day: 3+
-
-**Technical Metrics:**
-- API uptime: 99.5%
-- P95 response time: <2s
-- Test coverage: >80%
-- Zero critical security vulnerabilities
+- Avg scans/user/day: 3+
 
 ---
 
-## 8. Release Plan
+## RISKS & MITIGATIONS
 
-**v0.1 (MVP) – Target: Week 7**
-- Stock scanning engine
-- Portfolio management
-- Basic dashboard
-- Manual scans only
+| Risk | Impact | Mitigation | Status |
+|------|--------|------------|--------|
+| Finnhub rate limits | High | Cache 15 min + retry logic | ✅ Done |
+| Finnhub volume = None | High | yfinance fallback | ✅ Done |
+| Celery job failures | Medium | Retry logic + Sentry | ⏳ Sprint 3 |
+| Scalability (1000+ users) | Medium | Railway Pro → AWS migration | ⏳ Future |
+| Data accuracy | High | Validate 2+ sources | ⏳ Sprint 3 |
 
-**v0.2 – Target: Week 10**
-- Automated daily scans
-- Email notifications (n8n)
-- User authentication
+---
 
-**v0.3 – Target: Week 14**
-- Advanced filters (RSI, MA)
+## OPEN QUESTIONS
+
+- [ ] Monetyzacja (free tier + paid)?
+- [ ] Domyślne kryteria scanów?
+- [ ] Limit pozycji w portfolio (free tier)?
+- [ ] Crypto markets (future)?
+
+---
+
+## SPRINT BREAKDOWN
+
+### Sprint 1 ✅ DONE
+- Setup (FastAPI, Next.js, Docker)
+- PostgreSQL + SQLAlchemy models
+- Redis cache
+- Basic routing
+
+### Sprint 2 🟡 65% DONE (CURRENT)
+**Week 3-5:**
+- ✅ Scan engine (9/10 wskaźników)
+- ✅ Portfolio CRUD
+- ✅ Dashboard UI
+- ✅ WCAG 2.1 AA
+- 🔴 3 bugi P0 (24h)
+- 🟡 8 failed tests (tydzień)
+- 🟡 Piotroski F-Score (tydzień)
+
+### Sprint 3 ⏳ PLANNED (2-3 tygodnie)
+**Week 6-8:**
+- Celery background jobs
+- JWT authentication
+- n8n webhooks (opcja)
+- Wykresy (Recharts)
+- Integration tests (Playwright)
+
+### Sprint 4 ⏳ FUTURE
+**Week 9+:**
+- Advanced filters
 - Backtesting (basic)
 - Mobile optimization
+- OAuth2
 
 ---
 
-## 9. Risks & Mitigations
+## CHANGELOG
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| yfinance rate limits | High | Implement caching, fallback to Finnhub |
-| Celery job failures | Medium | Retry logic, Sentry monitoring |
-| Scalability (1000+ users) | Medium | Start with Railway Pro, plan migration to AWS |
-| Data accuracy | High | Validate against 2+ sources, manual audits |
+**2025-10-08 (v1.1):**
+- Zaktualizowano status (Sprint 2 - 65%)
+- Dodano 3 bugi P0
+- Zaktualizowano tech stack (Finnhub + yfinance)
+- Dodano sprint breakdown
 
----
-
-## 10. Open Questions
-
-- [ ] Czy monetyzować (free tier + paid)?
-- [ ] Jakie kryteria domyślne dla scanów?
-- [ ] Maksymalna liczba pozycji w portfolio (limit na free tier)?
-- [ ] Czy dodać crypto markets w przyszłości?
-
----
-
-## 11. Appendix
-
-**References:**
-- yfinance docs: https://github.com/ranaroussi/yfinance
-- FastAPI best practices: https://fastapi.tiangolo.com/
-- n8n docs: https://docs.n8n.io/
-
-**Glossary:**
-- **Multibagger:** Akcja, która zwraca 2x+ inwestycji
-- **RSI:** Relative Strength Index (momentum indicator)
-- **OHLCV:** Open, High, Low, Close, Volume
-
----
-
-## Changelog
-
-- **2025-10-07:** Initial draft (v1.0)
+**2025-10-07 (v1.0):**
+- Initial PRD

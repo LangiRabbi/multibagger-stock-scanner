@@ -5,6 +5,8 @@
 'use client'
 
 import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface ScanResult {
   symbol: string
@@ -26,18 +28,21 @@ export default function ScanPage() {
   const [minVolume, setMinVolume] = useState('1000000')
   const [minPriceChange, setMinPriceChange] = useState('')
   const [loading, setLoading] = useState(false)
+  const [scanProgress, setScanProgress] = useState<string>('')
   const [results, setResults] = useState<ScanResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setScanProgress('Przygotowywanie skanowania...')
     setError(null)
     setResults(null)
 
     try {
       const symbolList = symbols.split(',').map(s => s.trim().toUpperCase())
 
+      setScanProgress('Łączenie z API...')
       const response = await fetch('http://localhost:8000/api/scan', {
         method: 'POST',
         headers: {
@@ -54,22 +59,62 @@ export default function ScanPage() {
         throw new Error('Scan failed')
       }
 
+      setScanProgress('Pobieranie wyników...')
       const data: ScanResponse = await response.json()
+
+      setScanProgress('Gotowe!')
       setResults(data)
+
+      // ✅ Toast sukcesu - informacja o liczbie znalezionych akcji
+      const matchCount = data.matches || 0
+      const totalScanned = data.total_scanned || 0
+
+      toast.success(
+        `✅ Skanowanie ukończone! Znaleziono ${matchCount} z ${totalScanned} akcji spełniających kryteria.`,
+        { duration: 4000 }
+      )
+
+      // ⚠️ Ostrzeżenie jeśli niektóre symbole nie zostały znalezione
+      const expectedCount = symbolList.length
+      const actualCount = data.results?.length || 0
+
+      if (actualCount < expectedCount) {
+        const missingCount = expectedCount - actualCount
+        toast.error(
+          `⚠️ Nie znaleziono ${missingCount} symboli. Sprawdź czy są poprawne (np. AAPL, MSFT).`,
+          { duration: 5000 }
+        )
+      }
+
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
+
+        // ❌ Toast błędu - wyraźna informacja o problemie
+        toast.error(
+          `❌ Błąd podczas skanowania: ${err.message}. Sprawdź czy backend działa na localhost:8000.`,
+          { duration: 6000 }
+        )
       } else {
         setError('An unknown error occurred')
+
+        toast.error(
+          '❌ Nieznany błąd podczas skanowania. Spróbuj ponownie lub sprawdź symbole akcji.',
+          { duration: 5000 }
+        )
       }
+      setScanProgress('Błąd podczas skanowania')
     } finally {
       setLoading(false)
+      // Reset progress po 1 sekundzie
+      setTimeout(() => setScanProgress(''), 1000)
     }
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Stock Scanner</h1>
+    <ErrorBoundary>
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Stock Scanner</h1>
 
       {/* Formularz skanowania */}
       <form onSubmit={handleScan} className="bg-white p-6 rounded-lg shadow-md border-2 border-gray-300 mb-6">
@@ -125,11 +170,53 @@ export default function ScanPage() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white font-semibold px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
+          className={`w-full py-3 px-4 rounded-lg font-bold text-base transition-all duration-200 ${
+            loading
+              ? 'bg-gray-400 cursor-not-allowed text-gray-700'
+              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
+          }`}
         >
-          {loading ? 'Scanning...' : 'Scan Stocks'}
+          {loading ? 'Skanowanie w toku...' : 'Scan Stocks'}
         </button>
       </form>
+
+      {/* Loading Indicator - Progress feedback dla użytkownika */}
+      {loading && (
+        <div className="mb-6 bg-blue-50 border-2 border-blue-300 rounded-lg p-5 shadow-md">
+          <div className="flex items-center gap-4">
+            {/* Animated Spinner - wskaźnik aktywności */}
+            <svg
+              className="animate-spin h-6 w-6 text-blue-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-label="Ładowanie"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+
+            {/* Progress Text - informacja o stanie */}
+            <div className="flex-1">
+              <p className="text-base font-bold text-blue-900">{scanProgress}</p>
+              <p className="text-sm text-blue-700 mt-1">
+                ⏳ Pierwsze skanowanie może potrwać 5-10 sekund (yfinance + Finnhub API)
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error */}
       {error && (
@@ -193,6 +280,7 @@ export default function ScanPage() {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

@@ -1,7 +1,7 @@
 """
 Pydantic schemas dla Stock Scanner
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 
 
@@ -24,12 +24,14 @@ class ScanRequest(BaseModel):
     """
     symbols: List[str] = Field(
         ...,
-        description="Lista symboli akcji do skanowania (np. ['AAPL', 'MSFT'])",
+        min_length=1,
+        description="Lista symboli akcji do skanowania (np. ['AAPL', 'MSFT']). Musi zawierac co najmniej 1 symbol.",
         example=["AAPL", "MSFT", "TSLA"]
     )
     min_volume: Optional[int] = Field(
         1000000,
-        description="Minimalny wolumen (domyslnie 1M)",
+        ge=0,
+        description="Minimalny wolumen (domyslnie 1M). Musi byc >= 0.",
         example=1000000
     )
     min_price_change_percent: Optional[float] = Field(
@@ -74,6 +76,25 @@ class ScanRequest(BaseModel):
         description="Max Forward P/E (15 = nie przewartosciowane)",
         example=15.0
     )
+
+    @field_validator('symbols')
+    @classmethod
+    def validate_symbols_not_empty(cls, v: List[str]) -> List[str]:
+        """
+        Walidator sprawdzający czy lista symbols nie jest pusta.
+
+        Args:
+            v: Lista symboli akcji
+
+        Returns:
+            Lista symboli jeśli walidacja przejdzie
+
+        Raises:
+            ValueError: Jeśli lista jest pusta
+        """
+        if not v or len(v) == 0:
+            raise ValueError('symbols list cannot be empty')
+        return v
 
 
 class StockResult(BaseModel):
